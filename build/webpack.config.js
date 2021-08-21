@@ -9,7 +9,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 module.exports = {
   mode: 'development', // 通过配置mode来告诉webpack当前运行的环境   开发模式
   entry: { // 入口文件
-    main: path.resolve(__dirname, '../src/main.js'),
+    main: ["@babel/polyfill", path.resolve(__dirname, '../src/main.js')], // babel-loader只会将 ES6/7/8语法转换为ES5语法，但是对新api并不会转换 例如(promise、Generator、Set、Maps、Proxy等)，此时我们需要借助babel-polyfill来帮助我们转译    
     header: path.resolve(__dirname, '../src/header.js')
   },
   output: {
@@ -36,13 +36,13 @@ module.exports = {
   module: {
     rules: [{
       test: /\.css$/,
-      use: ['style-loader', 'css-loader']
+      use: ['style-loader', 'css-loader'],
     },
     {
       test: /\.less$/,
       use: [
         'style-loader', 
-        MiniCssExtractPlugin.loader,
+        MiniCssExtractPlugin.loader, // 这个插件将(所有)CSS提取到单独的文件中(用外链的形式引入css文件)。它为每个包含CSS的JS文件创建一个CSS文件。
         'css-loader', 
         {
           loader: 'postcss-loader',
@@ -53,7 +53,17 @@ module.exports = {
           },
         },
         'less-loader',
-      ]
+      ],
+    },
+    {
+      test: /\.js$/,
+      use: [{
+        loader: 'babel-loader', // webpack打包的文件默认是不支持ES6的，我们需要用babel转译。(babel-loader)
+        options: {
+          presets: ['@babel/preset-env']
+        },
+      }],
+      exclude: /node_modules/,
     },
     ]
   }
