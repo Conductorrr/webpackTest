@@ -1,31 +1,34 @@
 // webpack.config.js
 const path = require('path');
+// html-webpack-plugin插件：将打包出来的js文件引入到html中
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const {
-  CleanWebpackPlugin
+  CleanWebpackPlugin // dist文件夹里会残留上次打包的文件，该插件帮我们在打包输出前清空文件夹
 } = require('clean-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 module.exports = {
   mode: 'development', // 通过配置mode来告诉webpack当前运行的环境   开发模式
-  entry: { // 入口文件
+  entry: { // 多入口文件
     main: ["@babel/polyfill", path.resolve(__dirname, '../src/main.js')], // babel-loader只会将 ES6/7/8语法转换为ES5语法，但是对新api并不会转换 例如(promise、Generator、Set、Maps、Proxy等)，此时我们需要借助babel-polyfill来帮助我们转译    
     header: path.resolve(__dirname, '../src/header.js')
   },
   output: {
-    filename: '[name].[hash:8].js', // 打包后的文件名称
+    filename: '[name].[hash:8].js', // 打包后的文件名称   [name]根据entry中的名字命名
     path: path.resolve(__dirname, '../dist') // 打包后的目录
+    // chunkFilename: '[id].css'  指未列在 entry 中，却又需要被打包出来的文件的名称。一般来说，这个文件指的就是要懒加载的代码。[id]文件的id
   },
   plugins: [
+    // 多入口文件对应多个new HtmlWebpackPlugin
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../public/index.html'), // 模板文件地址
       filename: 'index.html',
-      chunks: ['main']
+      chunks: ['main'], // 与入口文件对应的模块名
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../public/index.html'), // 模板文件地址
       filename: 'header.html',
-      chunks: ['header']
+      chunks: ['header'], // 与入口文件对应的模块名
     }),
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
@@ -42,7 +45,7 @@ module.exports = {
       test: /\.less$/,
       use: [
         'style-loader', 
-        MiniCssExtractPlugin.loader, // 这个插件将(所有)CSS提取到单独的文件中(用外链的形式引入css文件)。它为每个包含CSS的JS文件创建一个CSS文件。
+        MiniCssExtractPlugin.loader, // 把css样式从js文件中提取到单独的css文件中(用外链的形式引入css文件)(会将所有的css样式合并为一个css文件)
         'css-loader', 
         {
           loader: 'postcss-loader',
