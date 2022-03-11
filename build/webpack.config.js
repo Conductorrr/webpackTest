@@ -15,8 +15,7 @@ module.exports = {
   },
   output: {
     filename: '[name].[hash:8].js', // 打包后的文件名称   [name]根据entry中的名字命名
-    path: path.resolve(__dirname, '../dist') // 打包后的目录
-    // chunkFilename: '[id].css'  指未列在 entry 中，却又需要被打包出来的文件的名称。一般来说，这个文件指的就是要懒加载的代码。[id]文件的id
+    path: path.resolve(__dirname, '../dist') // 打包后存放的目录
   },
   plugins: [
     // 多入口文件对应多个new HtmlWebpackPlugin
@@ -33,9 +32,10 @@ module.exports = {
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
       filename: '[name].[hash].css',
-      chunkFilename: '[id].css'
+      chunkFilename: '[id].css' // [id] 文件的id
     }),
   ],
+  // 如何处理项目中的不同类型的模块
   module: {
     rules: [{
       test: /\.css$/,
